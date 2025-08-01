@@ -254,7 +254,7 @@ dcc_fit <- dccfit(
 # Ver resultados
 print(dcc_fit)
 
-#lopes <- round(dcc_fit@mfit$matcoef, 6)
+#lopes <- round(dcc_fit@mfit$matcoef, 6) #teste
 
 # Extração e Visualização dos Resultados
 # Extrair correlações e cov condicionais
@@ -424,7 +424,7 @@ atualizar_cov_dcc <- function(dados, dcc_fit, data_rebalanceamento) {
 
 
 # Passo 2: Modificar a Especificação do Portfólio
-# Criar uma cópia do seu portfólio original
+# Criar uma cópia do portfólio original
 portf_dcc <- portf
 
 # Remover a restrição de risco padrão (será substituída pela do DCC)
@@ -598,7 +598,7 @@ ggplot(df_long, aes(x = Ativo, y = Peso, fill = Modelo)) +
 ###################################################### FAZENDO O LOOP MAS DESSA VEZ UTILOZANDO O PACOTE PARMA ###############################################
 
 ## Passo 1: Preparação dos dados (usando os dados anteriores)
-retornos <- preço_portifolio  # Seus retornos logarítmicos
+retornos <- preço_portifolio  # retornos logarítmicos
 datas_rebalanceamento <- endpoints(retornos, on = "months")[-1]  # Mensal
 
 ## Passo 2: Configuração do DCC-GARCH (como eu fiz acima)
@@ -651,7 +651,7 @@ rebalanceamento_parma_correto <- function(retornos, dcc_fit, datas_rebalanceamen
     )
     
     if(!is.null(sol)) {
-      # CORREÇÃO: Usando as funções corretas do parma
+      # atencao: Usar as funções corretas do parma
       resultados[[as.character(data_atual)]] <- list(
         weights = weights(sol),
         risk = parmarisk(sol),  # Função correta para extrair o risco
@@ -666,7 +666,7 @@ rebalanceamento_parma_correto <- function(retornos, dcc_fit, datas_rebalanceamen
 # Execução
 resultados <- rebalanceamento_parma_correto(retornos, dcc_fit, datas_rebalanceamento)
 
-## Passo 4: Executar o rebalanceamento
+## Passo 4: Executar o rebalanceamento NAO USAR ISSO DAKI RETIREI O OBJETO (fica para teste)
 #resultados_parma <- rebalanceamento_parma(retornos, dcc_fit, datas_rebalanceamento)
 
 processar_resultados <- function(resultados) {
@@ -719,7 +719,7 @@ returns_parma <- Return.portfolio(retornos, weights = weights_parma)
 colnames(returns_parma) <- "DCC-GARCH"
 
 # Resultados da abordagem original (optLoop) feito no inicio
-returns_original <- rebal_returns  # Do código anterior
+returns_original <- rebal_returns  # já fiz esse objeto
 colnames(returns_original) <- "Clássica"
 
 # Combinar os resultados
@@ -802,7 +802,7 @@ ggplot(turnover, aes(x = Método, y = Turnover, fill = Método)) +
 colnames(weights_parma)
 
 
-# 1. Extrair correlações DCC (usando os nomes corretos)
+# 1. Extrair correlações DCC (ATENCAO USAR NOMES CORRETOS SE N DA ERRADO)
 cor_petro_vale <- xts(rcor(dcc_fit)["petro", "vale", ], index(retornos))
 
 # 2. Preparar dados para ggplot
@@ -967,7 +967,7 @@ p_cambio <- ggplot(data = fortify(acoes$BRL.X.Adjusted),
 library(patchwork)
 (p_petro + p_vale + p_itau ) / 
   ( p_bradesco + p_kroton + p_brf) + 
-  (p_cambio + p_bova11 + p_ambev ) + # Adicione outros gráficos
+  (p_cambio + p_bova11 + p_ambev ) + # LEMBRAR DE NA HORA Q FOR PASSAR PARA O DOC, COLOCAR OUTROS GRAFS
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = 'A')
 
@@ -1103,7 +1103,7 @@ p_cambio <- ggplot(data = fortify(retornos$cambio),
 library(patchwork)
 (p_petro + p_vale + p_itau ) / 
   ( p_bradesco + p_kroton + p_brf) + 
-  (p_cambio + p_bova11 + p_ambev ) + # Adicione outros gráficos
+  (p_cambio + p_bova11 + p_ambev ) + # LEMBRAR DE NA HORA Q FOR PASSAR PARA O DOC, COLOCAR OUTROS GRAFS
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = 'A')
 
@@ -1294,7 +1294,7 @@ p9 <- p_cambio + geom_line(color = "#377eb8", linewidth = 0.7) +
 
 (p1 + p2 + p3 ) / 
   ( p4 + p5 + p6) + 
-  (p7 + p8 + p9) + # Adicione outros gráficos
+  (p7 + p8 + p9) + # LEMBRAR DE NA HORA Q FOR PASSAR PARA O DOC, COLOCAR OUTROS GRAFS
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = 'A')
 
@@ -1328,7 +1328,7 @@ estatisticas <- data.frame(
 # 3. Arredondar valores
 estatisticas[, -1] <- round(estatisticas[, -1], 2)
 
-# 4. Adicionar nomes completos (opcional)
+# 4. Adicionar nomes completos (IMPORTANTE)
 nomes_completos <- c(
   "petro" = "Petrobras",
   "itau" = "Itaú Unibanco",
@@ -1346,7 +1346,7 @@ estatisticas$Ativo <- nomes_completos[estatisticas$Ativo]
 # 5. Resultado final (Tabela formatada)
 print(estatisticas)
 
-# 6. Exportar para CSV (opcional)
+# 6. Exportar para CSV (opcional) facilita para fazer as tabs
 #write.csv(estatisticas, "estatisticas_retornos.csv", row.names = FALSE)
 
 #####################################################################################################################################
@@ -1372,16 +1372,12 @@ corrplot(cor_matrix,
 
 ######################################## grafico das volatilidaes condicionais #######################
 
-# Certifique-se de que dcc_fit foi ajustado corretamente
-# Se você já executou essa parte do seu script, apenas chame o objeto:
-# dcc_fit <- dccfit(dcc_spec, data = retornos, fit.control = list(eval.se = TRUE))
-
 # Extrair as volatilidades condicionais (desvios padrão)
 volatilidades_condicionais <- sqrt(t(apply(cov1, 3, diag))) # cov1 é um array 3D
 
 # Converter para objeto xts para fácil plotagem com datas
 volatilidades_xts <- xts(volatilidades_condicionais, order.by = index(retornos))
-colnames(volatilidades_xts) <- nomes # Atribuir os nomes dos ativos
+colnames(volatilidades_xts) <- nomes # colocar os nomes dos ativos
 
 # Plotar todas as volatilidades em um único gráfico facetado
 # Usaremos ggplot2 para maior flexibilidade e estética
@@ -1408,7 +1404,7 @@ p_vol_individual <- ggplot(df_volatilidades, aes(x = Data, y = Volatilidade, col
 
 print(p_vol_individual)
 
-# Ou se preferir em gráficos separados (para controle individual, mas pode ser muito)
+# Ou gráficos separados (para controle individual) VAI TER MTO GRAFICO TALVEZ N USAR TODOS
 for (ativo_nome in nomes) {
   p <- ggplot(df_volatilidades %>% filter(Ativo == ativo_nome),
               aes(x = Data, y = Volatilidade)) +
@@ -1427,11 +1423,8 @@ for (ativo_nome in nomes) {
 
 
 ################################ correlações condicionais#######################################################################################
-
-# --- Gráfico 1: Correlação Condicional VALE3.SA e BRFS3.SA ---
-# Extrair a série de correlação entre Vale e BRF
-# cor1 é um array 3D: dimensão1=ativo_linha, dimensão2=ativo_coluna, dimensão3=tempo
-# Usamos os nomes definidos no seu vetor 'nomes'
+# vou fazer combinações 2a2 se n tem muito grafico
+                     
 cor_vale_brf <- xts(cor1["vale", "brf", ], order.by = index(retornos))
 colnames(cor_vale_brf) <- "Vale-BRF"
 
@@ -1500,8 +1493,8 @@ print(p_bova_cambio)
 
 
 ############################################################ volta cond 2 a 2 ##########################################################################################
-
-# --- Gráfico 1: Volatilidade Condicional de VALE3.SA e BRFS3.SA ---
+# outra vez combinacao 2a2
+# Gráfico 1: Volatilidade Condicional de VALE3.SA e BRFS3.SA ---
 # Selecionar as séries de volatilidade para Vale e BRF
 vol_vale_brf <- volatilidades_xts[, c("Vale", "BRF")]
 
@@ -1516,7 +1509,7 @@ p_vol_vale_brf <- ggplot(df_vol_vale_brf, aes(x = Data, y = Volatilidade, color 
   labs(title = "Volat. Cond.: VALE e BRF",
        x = "Data",
        y = "Volatilidade",
-       color = "Ativo") + # Mantenha a legenda para diferenciar as linhas
+       color = "Ativo") + # MANTER a legenda para diferenciar as linhas
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1))
@@ -1569,7 +1562,7 @@ print(p_vol_bova_cambio)
 
 
 (p_vale_brf + p_itau_bradesco + p_bova_cambio ) / 
-  ( p_vol_vale_brf + p_vol_itau_bradesco + p_vol_bova_cambio) +  # Adicione outros gráficos
+  ( p_vol_vale_brf + p_vol_itau_bradesco + p_vol_bova_cambio) +  # lembrar de colocar outros graf na hora de passar pro doc final
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = 'A')
 
@@ -1580,36 +1573,28 @@ print(p_vol_bova_cambio)
 ###################################################### diagnostico dos residuos ####################################################################################################
 
 
-
-# Certifique-se de que os pacotes necessários estão carregados:
 library(rmgarch)
 library(xts)
 library(ggplot2)
-library(forecast) # Para a função Acf e Pacf (ou use o base R stats::acf)
+library(forecast) # Para a função Acf e Pacf 
 library(tidyr) # Para pivot_longer
 library(gridExtra) # Para organizar múltiplos plots em uma única figura
 library(dplyr) # Para manipulação de dados
 
-# ==============================================================================
 # PASSO 1: Extrair Resíduos Padronizados do Modelo DCC-GARCH
-# ==============================================================================
 
 # Os resíduos padronizados são geralmente os resíduos divididos pelo desvio padrão condicional.
 # Em rmgarch, a função residuals() com standardize=TRUE já faz isso.
-# dcc_fit é o seu objeto do modelo DCC-GARCH já ajustado.
 residuos_padronizados_multi <- residuals(dcc_fit)
 
 # converter para xts e adicionar os nomes das colunas
 residuos_xts <- xts(residuos_padronizados_multi, order.by = index(retornos))
-colnames(residuos_xts) <- nomes # Use os nomes dos seus ativos
+colnames(residuos_xts) <- nomes # LEMBRAR DE USAR NOMES CERTOS SE NAO DA ERRADO
 
 # Criar os resíduos padronizados ao quadrado
 residuos_quadrados_xts <- residuos_xts^2
 
-
-# ==============================================================================
 # PASSO 2: Estatísticas Descritivas dos Resíduos Padronizados
-# ==============================================================================
 
 # Calcular média e desvio padrão para cada série de resíduos padronizados
 stats_residuos <- data.frame(
@@ -1627,12 +1612,9 @@ stats_residuos_formatado <- stats_residuos %>%
 print("Tabela A.1: Estatísticas Descritivas dos Resíduos Padronizados")
 print(stats_residuos_formatado)
 
-
-# ==============================================================================
 # PASSO 3: Análise Gráfica dos Resíduos (Séries Temporais e ACF/PACF)
-# ==============================================================================
 
-# Selecione alguns ativos representativos para os gráficos (evitar sobrecarga visual)
+# Selecione alguns ativos apenas ou todos n sei ainda vai ficar muita coisa
 ativos_para_plot <- c("Petrobras", "Itau", "Vale", "Bradesco","Ambev","Kroton","BRF","Bova11","Cambio") # Ajuste conforme seu interesse
 
 # Lista para armazenar os plots
@@ -1645,7 +1627,7 @@ plots_pacf_residuos_quadrados <- list()
 
 
 for (ativo in ativos_para_plot) {
-  # --- Resíduos Padronizados ---
+  #  Resíduos Padronizados 
   df_res <- fortify.zoo(residuos_xts[, ativo], melt = TRUE)
   colnames(df_res) <- c("Data", "Ativo", "Residuo")
   
@@ -1659,7 +1641,7 @@ for (ativo in ativos_para_plot) {
   plots_residuos[[ativo]] <- p_res_ts
   
   # ACF dos resíduos
-  # stats::acf é do R base
+  
   acf_res <- stats::acf(residuos_xts[, ativo], plot = FALSE, lag.max = 20)
   df_acf_res <- data.frame(Lag = acf_res$lag, ACF = acf_res$acf)
   p_acf_res <- ggplot(df_acf_res, aes(x = Lag, y = ACF)) +
@@ -1684,7 +1666,7 @@ for (ativo in ativos_para_plot) {
   plots_pacf_residuos[[ativo]] <- p_pacf_res
   
   
-  # --- Resíduos Padronizados ao Quadrado ---
+  #  Resíduos Padronizados ao Quadrad
   df_res_sq <- fortify.zoo(residuos_quadrados_xts[, ativo], melt = TRUE)
   colnames(df_res_sq) <- c("Data", "Ativo", "Residuo_Quadrado")
   
@@ -1722,8 +1704,8 @@ for (ativo in ativos_para_plot) {
   plots_pacf_residuos_quadrados[[ativo]] <- p_pacf_res_sq
 }
 
-# Organizar e imprimir alguns plots (você pode imprimir um por um ou agrupá-los)
-# Exemplo: Agrupar 2x2 para cada tipo de gráfico para os ativos selecionados
+# Organizar e imprimir alguns plots (talvez todos fica muito)
+# Agrupar 2x2 para cada tipo de gráfico para os ativos selecionados
 # Gráficos de série temporal dos resíduos padronizados
 print(grid.arrange(plots_residuos[[1]], plots_residuos[[2]], plots_residuos[[3]], plots_residuos[[4]], ncol = 2,
                    top = "Figura A.1: Séries Temporais dos Resíduos Padronizados de Ativos Selecionados"))
@@ -1737,14 +1719,13 @@ print(grid.arrange(plots_acf_residuos_quadrados[[1]], plots_acf_residuos_quadrad
                    top = "Figura A.3: Funções de Autocorrelação (ACF) dos Resíduos Padronizados ao Quadrado de Ativos Selecionados"))
 
 
-# ==============================================================================
 # PASSO 4: Testes Formais de Autocorrelação (Teste de Ljung-Box)
-# ==============================================================================
 
-# Definir os lags para o teste de Ljung-Box (ex: 10, 15, 20)
+
+# Definir os lags para o teste de Ljung-Box (nesse caso 10 15 20)
 lags_test <- c(10, 15, 20)
 
-# Criar dataframes para armazenar os resultados dos testes
+# dataframes para armazenar os resultados dos testes
 ljung_box_residuos <- data.frame(Ativo = character(), Lag = numeric(), Chi_Sq = numeric(), P_Valor = numeric(), stringsAsFactors = FALSE)
 ljung_box_residuos_quadrados <- data.frame(Ativo = character(), Lag = numeric(), Chi_Sq = numeric(), P_Valor = numeric(), stringsAsFactors = FALSE)
 
@@ -1771,9 +1752,8 @@ print("Tabela A.3: Resultados do Teste de Ljung-Box para Resíduos Padronizados 
 print(ljung_box_residuos_quadrados)
 
 
-
-
-
+# fazer uma explicacao do codigo usado dps se precisar sei la tem muita coisa ja ou pedir pro chatgpt explicar com ptbr bom (LEMBRAR!!)
+                     
 getSymbols("BBAS3.SA", src=fonte, from=inicial, to=final)
 xBB <- BBAS3.SA$BBAS3.SA.Adjusted
 
@@ -1781,15 +1761,11 @@ bb_retorno <- dailyReturn(xBB, type = 'log')
 bb_retorno <- na.omit(bb_retorno)
 
 
-
 par(mfrow = c(3, 1))
 plot(bb_retorno, main = "Retorno Banco do brasil")
 plot(retornos$vale, main = 'Retorno Vale')
 plot(retornos$petro, main = 'Retorno Petrobras')
 par(mfrow = c(1, 1))
-
-
-
 
 
 par(mfrow = c(3,3))
@@ -1810,7 +1786,6 @@ plot(quantis_teoricos_t, residuos_ordenados,
 
 # Adicionar a linha de referência (y = x)
 abline(0, 1, col = "red", lwd = 2)
-
 
 
 # Gerar quantis teóricos da distribuição t-Student
